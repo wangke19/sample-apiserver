@@ -127,6 +127,32 @@ to something suitable.  Then call:
 kubectl apply -f artifacts/example
 ```
 
+### Deploy into a OpenShift Cluster
+
+Edit `artifacts/example/deployment.yaml`, updating the pod template's image
+reference to match what you pushed and setting the `imagePullPolicy`
+to something suitable.  Then call:
+
+Change the namespace involved in all files under directory artifacts/example to default，namespace kube-system is under metadata remain unchanged in auth-reader.yaml.
+
+Then call:
+```
+oc apply -f artifacts/example
+
+oc get --raw "/apis/wardle.example.com/v1alpha1" | jq .
+
+TK=$(oc describe secret apiserver | grep 'token:' | tail -1 | cut -f2 -d ':' | sed 's/ //g')
+elbep=$(oc status | grep -oP "https.*$")
+```
+Try to access REST API,
+```
+curl  -k  -H  "Authorization: Bearer $TK" ${elbep}/apis/wardle.example.com/v1alpha1
+```
+Clean up the sample-apiserver,
+```
+oc delete -f artifacts/example
+```
+
 ## Running it stand-alone
 
 During development it is helpful to run sample-apiserver stand-alone, i.e. without
